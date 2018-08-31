@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 public class ArchivesLogAspect {
 
 //    public static final Log logger = LogFactory.getLog(ArchivesLogAspect.class);
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private  static final Logger logger = LoggerFactory.getLogger(ArchivesLogAspect.class);
     @Pointcut("execution(public * com.geely.devops.aoptest.controller.*.*(..))")
     public void webRequestLog() {}
 
@@ -47,22 +47,26 @@ public class ArchivesLogAspect {
 
     //配置controller环绕通知,使用在方法aspect()上注册的切入点
     @Around("webRequestLog()")
-    public void around(JoinPoint joinPoint){
+    public Object around(JoinPoint joinPoint){
+        Object rvt = null;
         System.out.println("==========开始执行controller环绕通知===============");
         long start = System.currentTimeMillis();
         try {
-            ((ProceedingJoinPoint) joinPoint).proceed();
+              rvt = ((ProceedingJoinPoint) joinPoint).proceed();
             long end = System.currentTimeMillis();
             if(logger.isInfoEnabled()){
                 logger.info("around " + joinPoint + "\tUse time : " + (end - start) + " ms!");
+                System.out.println("返回值"+rvt);
             }
             System.out.println("==========结束执行controller环绕通知===============");
+
         } catch (Throwable e) {
             long end = System.currentTimeMillis();
             if(logger.isInfoEnabled()){
                 logger.info("around " + joinPoint + "\tUse time : " + (end - start) + " ms with exception : " + e.getMessage());
             }
         }
+        return rvt;
     }
 
     /**
@@ -70,7 +74,7 @@ public class ArchivesLogAspect {
      *
      * @param joinPoint 切点
      */
-//    @After("webRequestLog()")
+    @After("webRequestLog()")
     public  void after(JoinPoint joinPoint) {
 
        /* HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -131,13 +135,13 @@ public class ArchivesLogAspect {
     }
 
     //配置后置返回通知,使用在方法aspect()上注册的切入点
-    @AfterReturning("webRequestLog()")
-    public void afterReturn(JoinPoint joinPoint){
-        System.out.println("=====执行controller后置返回通知=====");
-        if(logger.isInfoEnabled()){
-            logger.info("afterReturn " + joinPoint);
-        }
-    }
+//    @AfterReturning("webRequestLog()")
+//    public void afterReturn(JoinPoint joinPoint){
+//        System.out.println("=====执行controller后置返回通知=====");
+//        if(logger.isInfoEnabled()){
+//            logger.info("afterReturn " + joinPoint);
+//        }
+//    }
 
     /**
      * 异常通知 用于拦截记录异常日志
@@ -145,7 +149,7 @@ public class ArchivesLogAspect {
      * @param joinPoint
      * @param e
      */
-//    @AfterThrowing(pointcut = "webRequestLog()", throwing="e")
+    @AfterThrowing(pointcut = "webRequestLog()", throwing="e")
     public  void doAfterThrowing(JoinPoint joinPoint, Throwable e) {
         /*HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         HttpSession session = request.getSession();
