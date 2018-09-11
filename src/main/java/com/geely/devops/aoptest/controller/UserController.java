@@ -3,10 +3,7 @@ package com.geely.devops.aoptest.controller;
 import com.geely.devops.aoptest.Annotation.SysLog;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @ProjectName: aop-test
@@ -22,12 +19,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UserController {
 
-    @RequestMapping(value = "/add", method = RequestMethod.GET)
-    @SysLog(operationName = "用户模块", operationType = "添加")
-    @ApiOperation(value = "添加用户", notes = "查询数据库中某个学生的信息")
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.GET)
+    @SysLog(operationName = "用户模块", operationType = "修改")
+    @ApiOperation(value = "修改用户", notes = "查询数据库中某个学生的信息")
     public String add(
+            @ApiParam(required = true, name = "id", value = "id")
+            @PathVariable(value = "id") String id,
             @ApiParam(required = true, name = "name", value = "用户名称")
-            @RequestParam(value = "name", required = true) String name) {
+            @RequestParam(name = "name", required = true) String name) {
+        return name;
+    }
+
+
+    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "获取用户", notes = "查询数据库中某个学生的信息")
+    public String get(
+            @ApiParam(required = true, name = "id", value = "id")
+            @PathVariable(value = "id") String id,
+            @ApiParam(required = true, name = "name", value = "用户名称")
+            @RequestParam(name = "name", required = true) String name) {
         return name;
     }
 }
