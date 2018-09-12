@@ -1,6 +1,10 @@
 package com.geely.devops.aoptest.aop;
 
 import com.geely.devops.aoptest.Annotation.SysLog;
+import javassist.*;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.LocalVariableAttribute;
+import javassist.bytecode.MethodInfo;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -9,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @ProjectName: aop-test
@@ -40,9 +46,38 @@ public class ArchivesLogAspect {
     @Before("webRequestLog()")
     public void doBefore(JoinPoint joinPoint) {
         System.out.println("==========执行controller前置通知===============");
-        if(logger.isInfoEnabled()){
-            logger.info("before " + joinPoint);
+        String targetName = joinPoint.getTarget().getClass().getName();
+        String methodName = joinPoint.getSignature().getName();
+        Object[] arguments = joinPoint.getArgs();
+        Class targetClass = null;
+
+        try {
+            targetClass = Class.forName(targetName);
+            Method[] methods = targetClass.getMethods();
+            String operationType = "";
+            String operationName = "";
+            for (Method method : methods) {
+                if (method.getName().equals(methodName)) {
+                    Class[] clazzs = method.getParameterTypes();
+                    Map<String, Object> nameAndArgs = getFieldsName(this.getClass(), targetClass.getName(), methodName, arguments);
+                    if (clazzs.length == arguments.length) {
+                        SysLog annotation = method.getAnnotation(SysLog.class);
+                        if(null != annotation){
+                            operationType = annotation.operationType();
+                            operationName = annotation.operationName();
+                            break;
+                        }
+
+                    }
+                }
+            }
+            if(logger.isInfoEnabled()){
+                logger.info("before " + joinPoint);
+            }
+        } catch (ClassNotFoundException | NotFoundException e) {
+            e.printStackTrace();
         }
+
     }
 
     //配置controller环绕通知,使用在方法aspect()上注册的切入点
@@ -96,6 +131,7 @@ public class ArchivesLogAspect {
             Method[] methods = targetClass.getMethods();
             String operationType = "";
             String operationName = "";
+            Map<String, Object> nameAndArgs = getFieldsName(this.getClass(), targetClass.getName(), methodName, arguments);
             for (Method method : methods) {
                 if (method.getName().equals(methodName)) {
                     Class[] clazzs = method.getParameterTypes();
@@ -143,6 +179,40 @@ public class ArchivesLogAspect {
 //        }
 //    }
 
+
+    /**
+     * 通过反射机制 获取被切参数名以及参数值
+     *
+     * @param cls
+     * @param clazzName
+     * @param methodName
+     * @param args
+     * @return
+     * @throws NotFoundException
+     */
+    private Map<String, Object> getFieldsName(Class cls, String clazzName, String methodName, Object[] args) throws NotFoundException {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        ClassPool pool = ClassPool.getDefault();
+        //ClassClassPath classPath = new ClassClassPath(this.getClass());
+        ClassClassPath classPath = new ClassClassPath(cls);
+        pool.insertClassPath(classPath);
+
+        CtClass cc = pool.get(clazzName);
+        CtMethod cm = cc.getDeclaredMethod(methodName);
+        MethodInfo methodInfo = cm.getMethodInfo();
+        CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+        LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
+        if (attr == null) {
+            // exception
+        }
+        // String[] paramNames = new String[cm.getParameterTypes().length];
+        int pos = Modifier.isStatic(cm.getModifiers()) ? 0 : 1;
+        for (int i = 0; i < cm.getParameterTypes().length; i++) {
+            map.put(attr.variableName(i + pos), args[i]);//paramNames即参数名
+        }
+        return map;
+    }
     /**
      * 异常通知 用于拦截记录异常日志
      *
