@@ -32,7 +32,7 @@ public class ArchivesLogAspect {
 
 //    public static final Log logger = LogFactory.getLog(ArchivesLogAspect.class);
     private  static final Logger logger = LoggerFactory.getLogger(ArchivesLogAspect.class);
-    @Pointcut("execution(public * com.geely.devops.aoptest.controller.*.*(..))")
+    @Pointcut("execution(public * com.geely.devops.aoptest.controller.UserController.*(..))")
     public void webRequestLog() {}
 
 
@@ -109,8 +109,8 @@ public class ArchivesLogAspect {
      *
      * @param joinPoint 切点
      */
-    @After("webRequestLog()")
-    public  void after(JoinPoint joinPoint) {
+    @AfterReturning("webRequestLog()")
+    public  void afterReturning(JoinPoint joinPoint) {
 
        /* HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         HttpSession session = request.getSession();  */
@@ -123,7 +123,6 @@ public class ArchivesLogAspect {
 //        user.setName("张三");
 //        String ip = "127.0.0.1";
         try {
-
             String targetName = joinPoint.getTarget().getClass().getName();
             String methodName = joinPoint.getSignature().getName();
             Object[] arguments = joinPoint.getArgs();
