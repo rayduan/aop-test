@@ -16,13 +16,14 @@ import org.springframework.stereotype.Service;
  * <p>
  * Copyright: Copyright (c) 2018
  */
-@Service
+//@Service
 public class MenuServiceImpl implements MenuService {
 
-    @Autowired
-    private MenuDao menuDao;
+    //    @Autowired
+//    private MenuDao menuDao;
     @Override
     public Integer add(Menu menu) {
-        return menuDao.insert(menu);
+//        return menuDao.insert(menu);
+        return 2;
     }
 }

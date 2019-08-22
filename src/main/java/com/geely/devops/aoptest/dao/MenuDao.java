@@ -1,11 +1,10 @@
 package com.geely.devops.aoptest.dao;
 
 import com.geely.devops.aoptest.bean.Menu;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Mapper
+//@Mapper
 public interface MenuDao {
     int deleteByPrimaryKey(Integer id);
 

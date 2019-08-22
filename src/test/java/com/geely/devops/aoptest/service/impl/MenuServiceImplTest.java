@@ -22,6 +22,7 @@ public class MenuServiceImplTest extends AopTestApplicationTests {
 
     @Autowired
     private MenuService menuService;
+
     @Test
     public void add() {
         Menu menu = new Menu();

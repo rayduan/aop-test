@@ -3,10 +3,7 @@ package com.geely.devops.aoptest.service;
 import com.atlassian.jira.rest.client.api.*;
 import com.atlassian.jira.rest.client.api.domain.*;
 import com.atlassian.jira.rest.client.api.domain.input.*;
-import com.geely.devops.aoptest.util.DateUtil;
 import io.atlassian.util.concurrent.Promise;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +24,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 public class JiraToolService {
-    @Autowired
+//    @Autowired
     private JiraRestClient jiraRestClient;
     // 日期转字符串短格式
     private SimpleDateFormat sdf_short=new SimpleDateFormat("yyyy-MM-dd");
@@ -105,7 +102,7 @@ public class JiraToolService {
          * 计开始时间
          */
 //        builder.setFieldValue("customfield_10708", DateUtil.format(DateUtil.getDateBefore(new Date(),7),DateUtil.PATTERN_CLASSICAL_NORMAL));
-        builder.setFieldValue("customfield_10708", sdf_short.format(DateUtil.getDateBefore(new Date(), 7))+"T09:00:00.000+0800");
+//        builder.setFieldValue("customfield_10708", sdf_short.format(DateUtil.getDateBefore(new Date(), 7))+"T09:00:00.000+0800");
 
         ArrayList audits = new ArrayList();
         audits.add(ComplexIssueInputFieldValue.with("value", "PDCP评审"));
